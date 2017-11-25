@@ -1,5 +1,5 @@
 from will.plugin import WillPlugin
-from will.decorators import respond_to, periodic, hear, randomly, route, rendered_template
+from will.decorators import respond_to, periodic, hear, randomly, route, rendered_template, require_settings
 
 
 class HelpPlugin(WillPlugin):
@@ -10,7 +10,7 @@ class HelpPlugin(WillPlugin):
         # help_data = self.load("help_files")
         selected_modules = help_modules = self.load("help_modules")
 
-        self.say("Sure thing, %s." % message.sender.nick, message=message)
+        self.say("Sure thing, %s." % message.sender.handle)
 
         help_text = "Here's what I know how to do:"
         if plugin and plugin in help_modules:
@@ -20,7 +20,7 @@ class HelpPlugin(WillPlugin):
 
         for k in sorted(selected_modules, key=lambda x: x[0]):
             help_data = selected_modules[k]
-            if help_data and len(help_data) > 0:
+            if help_data:
                 help_text += "<br/><br/><b>%s</b>:" % k
                 for line in help_data:
                     if line:
@@ -28,4 +28,4 @@ class HelpPlugin(WillPlugin):
                             line = "&nbsp; <b>%s</b>%s" % (line[:line.find(":")], line[line.find(":"):])
                         help_text += "<br/> %s" % line
 
-        self.say(help_text, message=message, html=True)
+        self.say(help_text, html=True)

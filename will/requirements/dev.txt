@@ -1,4 +1,4 @@
--r requirements.txt
+-r base.txt
 
 # Dev only
 pyandoc
@@ -8,3 +8,5 @@ flake8
 mock
 nose
 coverage
+yappi
+tox

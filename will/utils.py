@@ -1,7 +1,26 @@
 # -*- coding: utf-8 -*-
-from clint.textui import puts, indent
-from clint.textui import colored
-from HTMLParser import HTMLParser
+from clint.textui import puts, colored
+from six.moves import html_parser
+
+
+UNSURE_REPLIES = [
+    "Hmm.  I'm not sure what to say.",
+    "I didn't understand that.",
+    "I heard you, but I'm not sure what to do.",
+    "Darn.  I'm not sure what that means.  Maybe you can teach me?",
+    "I really wish I knew how to do that.",
+    "Hm. I heard you, but I'm not sure what to do.",
+]
+
+DO_NOT_PICKLE = [
+    "api_requester",
+    "dnapi_requester",
+    "websocket",
+    "parse_channel_data",
+    "server",
+    "send_message",
+    "_updatedAt",
+]
 
 
 class Bunch(dict):
@@ -17,9 +36,24 @@ class Bunch(dict):
         self.__dict__ = self
 
 
+def clean_for_pickling(d):
+    cleaned_obj = Bunch()
+    if hasattr(d, "items"):
+        for k, v in d.items():
+            if k not in DO_NOT_PICKLE and "__" not in k:
+                cleaned_obj[k] = v
+    else:
+        for k in dir(d):
+            if k not in DO_NOT_PICKLE and "__" not in k:
+                cleaned_obj[k] = getattr(d, k)
+
+    return cleaned_obj
+
+
 # Via http://stackoverflow.com/a/925630
-class HTMLStripper(HTMLParser):
+class HTMLStripper(html_parser.HTMLParser):
     def __init__(self):
+        self.convert_charrefs = True
         self.reset()
         self.fed = []
 
@@ -40,12 +74,16 @@ def html_to_text(html):
 
 
 def is_admin(nick):
-    from . import settings
+    from will import settings
     return settings.ADMINS == '*' or nick.lower() in settings.ADMINS
 
 
 def show_valid(valid_str):
     puts(colored.green(u"✓ %s" % valid_str))
+
+
+def show_invalid(valid_str):
+    puts(colored.red(u"✗ %s" % valid_str))
 
 
 def warn(warn_string):
