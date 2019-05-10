@@ -65,6 +65,7 @@ class FuzzyAllMatchesBackend(GenerationBackend):
             search_matches = fuzz_process.extract(message.content, self.match_choices)
 
             for match_str, confidence in search_matches:
+                logging.debug(" Potential (%s) - %s" % (confidence, match_str))
                 l = self.match_methods[match_str]
                 if (
                         # The search regex matches and
@@ -75,15 +76,15 @@ class FuzzyAllMatchesBackend(GenerationBackend):
 
                         # It's not from me, or this search includes me, and
                         and (
-                            message.will_said_it is False or
-                            ("include_me" in l and l["include_me"])
+                            message.will_said_it is False
+                            or ("include_me" in l and l["include_me"])
                         )
 
                         # I'm mentioned, or this is an overheard, or we're in a 1-1
                         and (
-                            message.is_private_chat or
-                            ("direct_mentions_only" not in l or not l["direct_mentions_only"]) or
-                            message.is_direct
+                            message.is_private_chat
+                            or ("direct_mentions_only" not in l or not l["direct_mentions_only"])
+                            or message.is_direct
                         )
                 ):
                     logging.info(" Match (%s) - %s" % (confidence, match_str))

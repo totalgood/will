@@ -3,10 +3,12 @@
 # Dev only
 pyandoc
 mkdocs>=0.14
-fabric
+fabric<2
 flake8
 mock
 nose
 coverage
 yappi
 tox
+pytest
+pytest-cov
